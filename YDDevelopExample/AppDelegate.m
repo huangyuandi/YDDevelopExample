@@ -7,6 +7,18 @@
 //
 
 #import "AppDelegate.h"
+#import "YDNavigationController.h"
+#import "YDExampleController.h"
+
+
+#if defined(DEBUG)||defined(_DEBUG)
+#import "JPFPSStatus.h"
+#endif
+
+/// 1 -- 进入基于MVC设计模式的基类设计
+/// 0 -- 进入常用的开发Demo
+#define CMHDEBUG 0
+
 
 @interface AppDelegate ()
 
@@ -14,12 +26,42 @@
 
 @implementation AppDelegate
 
++(AppDelegate *)sharedDelegate {
+    return (AppDelegate *)[UIApplication sharedApplication].delegate;
+}
+
+
 //testfirst
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+
+    [self _configureApplication:application initialParamsBeforeInitUI:launchOptions];
+    
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.window.backgroundColor = [UIColor whiteColor];
+    
+#if CMHDEBUG
+#else
+    self.window.rootViewController = [[YDNavigationController alloc] initWithRootViewController:[[YDExampleController alloc] init]];
+#endif
+    [self.window makeKeyAndVisible];
+
+    
+    
+#if defined(DEBUG)||defined(_DEBUG)
+    [self _configDebugModelTools];
+#endif
+    
+    
+    
+    
     return YES;
 }
 
+#pragma mark - 在初始化UI之前配置
+- (void)_configureApplication:(UIApplication *)application initialParamsBeforeInitUI:(NSDictionary *)launchOptions{
+    /// 显示状态栏
+    [application setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+}
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -47,5 +89,11 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+#pragma mark - 调试(DEBUG)模式
+- (void)_configDebugModelTools{
+    /// 显示FPS
+    [[JPFPSStatus sharedInstance] open];
+    
+}
 
 @end
